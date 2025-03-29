@@ -5,14 +5,15 @@
       "name": "my-app",
       "devDependencies": {
         "@prisma/client": "^6.5.0",
-        "prisma": "^6.5.0",
         "prettier": "^3.5.3",
+        "prisma": "^6.5.0",
       },
     },
     "client": {
       "name": "@camille/client",
       "version": "0.0.1",
       "dependencies": {
+        "@camille/server": "workspace:*",
         "melt": "^0.23.1",
         "svelte-gestures": "^5.1.3",
       },
