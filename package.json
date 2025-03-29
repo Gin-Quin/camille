@@ -8,5 +8,11 @@
 		"dev:client": "cd client && bunx --bun vite dev",
 		"dev:server": "cd server && bun run --hot src/index.ts",
 		"build:client": "cd client && bunx --bun vite build"
+	},
+	"devDependencies": {
+		"sass-embedded": "^1.86.0"
+	},
+	"dependencies": {
+		"gsap": "^3.12.7"
 	}
 }
