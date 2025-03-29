@@ -8,5 +8,8 @@
 		"dev:client": "cd client && vite dev",
 		"dev:server": "cd server && bun run --hot src/index.ts",
 		"build:client": "cd client && vite build"
+	},
+	"devDependencies": {
+		"prettier": "^3.5.3"
 	}
 }

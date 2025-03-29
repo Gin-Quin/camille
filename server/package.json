@@ -1,5 +1,9 @@
 {
 	"name": "@camille/server",
+	"exports": {
+		".": "./src/index.ts",
+		"./*": "./src/*.ts"
+	},
 	"scripts": {
 		"dev": "bun run --hot src/index.ts"
 	},
