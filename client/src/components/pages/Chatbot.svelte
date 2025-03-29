@@ -1,4 +1,5 @@
 <script lang="ts">
+    let showKeyboard = false;
 </script>
 
 <section class="chatbot">
@@ -27,9 +28,25 @@
         </div>
     </div>
     <div class="write">
-        <button class="open-keyboard" aria-label="Ouvre le clavier">
+        <button
+            class="open-keyboard"
+            on:click={() => (showKeyboard = !showKeyboard)}
+            aria-label="Ouvre le clavier"
+        >
             <i class="fa-solid fa-keyboard"></i>
         </button>
+        {#if showKeyboard}
+            <div class="keyboard-input">
+                <input type="text" placeholder="Écrivez votre message..." />
+                <button
+                    class="send-message"
+                    aria-label="Envoyer le message"
+                    on:click={() => (showKeyboard = !showKeyboard)}
+                >
+                    <i class="fa-solid fa-paper-plane"></i>
+                </button>
+            </div>
+        {/if}
     </div>
 </section>
 
@@ -119,6 +136,7 @@
 
         .write {
             display: flex;
+            flex-direction: column;
             justify-content: center;
             align-items: center;
 
@@ -132,6 +150,36 @@
                 font-size: 24px;
                 color: black;
                 box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+            }
+
+            .keyboard-input {
+                display: flex;
+                width: 100%;
+                padding: 10px;
+                background-color: #ffffff;
+                gap: 10px;
+
+                input {
+                    flex: 1;
+                    padding: 8px;
+                    border: 1px solid #ddd;
+                    border-radius: 8px;
+                    font-size: 16px;
+                }
+
+                .send-message {
+                    background-color: #ffffff;
+                    border: none;
+                    border-radius: 8px;
+                    padding: 8px 16px;
+                    cursor: pointer;
+                    font-size: 18px;
+                    color: black;
+
+                    &:hover {
+                        background-color: #f0f0f0;
+                    }
+                }
             }
         }
     }
