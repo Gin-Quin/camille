@@ -18,5 +18,12 @@ Run the client development server:
 bun run dev:client
 ```
 
+```bash
+docker-compose up -d
+```
+
+```bash
+npx prisma migrate deploy
+```
 
 

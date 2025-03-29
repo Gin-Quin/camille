@@ -116,3 +116,6 @@ ALTER TABLE "Consume" ADD CONSTRAINT "Consume_analysisId_fkey" FOREIGN KEY ("ana
 
 -- AddForeignKey
 ALTER TABLE "Consume" ADD CONSTRAINT "Consume_substanceId_fkey" FOREIGN KEY ("substanceId") REFERENCES "Substance"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+INSERT INTO "Speaker" ("name") VALUES ('AI');
+INSERT INTO "Speaker" ("name") VALUES ('user');
