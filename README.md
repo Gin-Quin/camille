@@ -26,4 +26,7 @@ docker-compose up -d
 npx prisma migrate deploy
 ```
 
+```bash
+npx ts-node prisma/seed.ts
+```
 
