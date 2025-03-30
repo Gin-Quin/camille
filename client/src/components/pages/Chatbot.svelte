@@ -327,29 +327,86 @@
             .keyboard-input {
                 display: flex;
                 width: 100%;
-                padding: 10px;
+                padding: 16px 20px;
                 background-color: #ffffff;
-                gap: 10px;
+                gap: 12px;
+                border-top: 1px solid rgba(0, 0, 0, 0.05);
+                transition: all 0.3s ease;
 
                 input {
                     flex: 1;
-                    padding: 8px;
-                    border: 1px solid #ddd;
-                    border-radius: 8px;
+                    padding: 12px 16px;
+                    border: 2px solid #eef1f5;
+                    border-radius: 12px;
                     font-size: 16px;
+                    background-color: #f8fafc;
+                    transition: all 0.2s ease;
+                    min-width: 0;
+
+                    &:focus {
+                        outline: none;
+                        border-color: #c7d2fe;
+                        background-color: #ffffff;
+                        box-shadow: 0 0 0 4px rgba(199, 210, 254, 0.2);
+                    }
+
+                    &::placeholder {
+                        color: #94a3b8;
+                    }
                 }
 
                 .send-message {
-                    background-color: #ffffff;
-                    border: none;
-                    border-radius: 8px;
-                    padding: 8px 16px;
+                    background: rgba(255, 255, 255, 0.45) url("/src/assets/img/background-colors.png");
+                    background-size: 400%;
+                    background-position: center;
+                    -webkit-backdrop-filter: blur(8px);
+                    backdrop-filter: blur(8px);
+                    border: 1px solid rgba(255, 255, 255, 0.225);
+                    border-radius: 12px;
+                    padding: 12px;
+                    min-width: 50px;
                     cursor: pointer;
                     font-size: 18px;
-                    color: black;
+                    color: #1a1a1a;
+                    transition: all 0.2s ease;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+                    position: relative;
+                    overflow: hidden;
+
+                    &::before {
+                        content: "";
+                        position: absolute;
+                        top: 0;
+                        left: 0;
+                        right: 0;
+                        bottom: 0;
+                        background: rgba(255, 255, 255, 0.45);
+                        backdrop-filter: blur(8px);
+                        -webkit-backdrop-filter: blur(8px);
+                        z-index: 0;
+                    }
+
+                    i {
+                        position: relative;
+                        z-index: 1;
+                    }
 
                     &:hover {
-                        background-color: #f0f0f0;
+                        background-color: rgba(255, 255, 255, 0.6);
+                        transform: translateY(-1px);
+                        box-shadow: 0 6px 8px rgba(0, 0, 0, 0.08);
+
+                        &::before {
+                            background-color: rgba(255, 255, 255, 0.6);
+                        }
+                    }
+
+                    &:active {
+                        transform: translateY(1px);
+                        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
                     }
                 }
             }
