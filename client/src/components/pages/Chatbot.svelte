@@ -1,7 +1,8 @@
 <script lang="ts">
+	import { PUBLIC_API_URL } from "$env/static/public"
 	import { startWebRTCSession } from "./startWebRTCSession"
 
-    let showKeyboard = $state(false);
+	let showKeyboard = $state(false)
 	let isRecording = $state(false)
 	let connection: RTCPeerConnection | null = null
 	let channel: RTCDataChannel | null = null
@@ -64,10 +65,10 @@
 						const transcript = response.transcript as string
 						console.warn("User talks at item", response.item_id)
 						messageObject[response.item_id].message = transcript
-						// fetch(`${PUBLIC_API_URL}/conversation`, {
-						// 	method: "POST",
-						// 	body: JSON.stringify({ transcript, source: "user" }),
-						// })
+						fetch(`${PUBLIC_API_URL}/conversation`, {
+							method: "POST",
+							body: JSON.stringify({ sentence: transcript, speakerId: 2 }),
+						})
 						break
 					}
 					// case "response.created": {
@@ -100,10 +101,10 @@
 							message: "",
 						}
 						messageObject[response.item_id].message = transcript
-						// fetch(`${PUBLIC_API_URL}/conversation`, {
-						// 	method: "POST",
-						// 	body: JSON.stringify({ transcript, source: "ai" }),
-						// })
+						fetch(`${PUBLIC_API_URL}/conversation`, {
+							method: "POST",
+							body: JSON.stringify({ sentence: transcript, speakerId: 1 }),
+						})
 						break
 					}
 				}
@@ -180,7 +181,11 @@
 		</div>
 	</div>
 	<div class="write">
-		<button class="open-keyboard" onclick={() => (showKeyboard = !showKeyboard)} aria-label="Ouvre le clavier">
+		<button
+			class="open-keyboard"
+			onclick={() => (showKeyboard = !showKeyboard)}
+			aria-label="Ouvre le clavier"
+		>
 			<i class="fa-solid fa-keyboard"></i>
 		</button>
 		{#if showKeyboard}
@@ -213,9 +218,6 @@
 			flex-direction: column;
 			height: 100%;
 			width: 100%;
-			background: rgba(255, 255, 255, 0.45);
-			-webkit-backdrop-filter: blur(8px);
-			backdrop-filter: blur(8px);
 			border: 1px solid rgba(255, 255, 255, 0.225);
 			padding-bottom: 76px;
 
@@ -323,92 +325,93 @@
 				box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
 			}
 
-            .keyboard-input {
-                display: flex;
-                width: 100%;
-                padding: 16px 20px;
-                background-color: #ffffff;
-                gap: 12px;
-                border-top: 1px solid rgba(0, 0, 0, 0.05);
-                transition: all 0.3s ease;
+			.keyboard-input {
+				display: flex;
+				width: 100%;
+				padding: 16px 20px;
+				background-color: #ffffff;
+				gap: 12px;
+				border-top: 1px solid rgba(0, 0, 0, 0.05);
+				transition: all 0.3s ease;
 
-                input {
-                    flex: 1;
-                    padding: 12px 16px;
-                    border: 2px solid #eef1f5;
-                    border-radius: 12px;
-                    font-size: 16px;
-                    background-color: #f8fafc;
-                    transition: all 0.2s ease;
-                    min-width: 0;
+				input {
+					flex: 1;
+					padding: 12px 16px;
+					border: 2px solid #eef1f5;
+					border-radius: 12px;
+					font-size: 16px;
+					background-color: #f8fafc;
+					transition: all 0.2s ease;
+					min-width: 0;
 
-                    &:focus {
-                        outline: none;
-                        border-color: #c7d2fe;
-                        background-color: #ffffff;
-                        box-shadow: 0 0 0 4px rgba(199, 210, 254, 0.2);
-                    }
+					&:focus {
+						outline: none;
+						border-color: #c7d2fe;
+						background-color: #ffffff;
+						box-shadow: 0 0 0 4px rgba(199, 210, 254, 0.2);
+					}
 
-                    &::placeholder {
-                        color: #94a3b8;
-                    }
-                }
+					&::placeholder {
+						color: #94a3b8;
+					}
+				}
 
-                .send-message {
-                    background: rgba(255, 255, 255, 0.45) url("/src/assets/img/background-colors.png");
-                    background-size: 400%;
-                    background-position: center;
-                    -webkit-backdrop-filter: blur(8px);
-                    backdrop-filter: blur(8px);
-                    border: 1px solid rgba(255, 255, 255, 0.225);
-                    border-radius: 12px;
-                    padding: 12px;
-                    min-width: 50px;
-                    cursor: pointer;
-                    font-size: 18px;
-                    color: #1a1a1a;
-                    transition: all 0.2s ease;
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
-                    position: relative;
-                    overflow: hidden;
+				.send-message {
+					background: rgba(255, 255, 255, 0.45)
+						url("/src/assets/img/background-colors.png");
+					background-size: 400%;
+					background-position: center;
+					-webkit-backdrop-filter: blur(8px);
+					backdrop-filter: blur(8px);
+					border: 1px solid rgba(255, 255, 255, 0.225);
+					border-radius: 12px;
+					padding: 12px;
+					min-width: 50px;
+					cursor: pointer;
+					font-size: 18px;
+					color: #1a1a1a;
+					transition: all 0.2s ease;
+					display: flex;
+					align-items: center;
+					justify-content: center;
+					box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+					position: relative;
+					overflow: hidden;
 
-                    &::before {
-                        content: "";
-                        position: absolute;
-                        top: 0;
-                        left: 0;
-                        right: 0;
-                        bottom: 0;
-                        background: rgba(255, 255, 255, 0.45);
-                        backdrop-filter: blur(8px);
-                        -webkit-backdrop-filter: blur(8px);
-                        z-index: 0;
-                    }
+					&::before {
+						content: "";
+						position: absolute;
+						top: 0;
+						left: 0;
+						right: 0;
+						bottom: 0;
+						background: rgba(255, 255, 255, 0.45);
+						backdrop-filter: blur(8px);
+						-webkit-backdrop-filter: blur(8px);
+						z-index: 0;
+					}
 
-                    i {
-                        position: relative;
-                        z-index: 1;
-                    }
+					i {
+						position: relative;
+						z-index: 1;
+					}
 
-                    &:hover {
-                        background-color: rgba(255, 255, 255, 0.6);
-                        transform: translateY(-1px);
-                        box-shadow: 0 6px 8px rgba(0, 0, 0, 0.08);
+					&:hover {
+						background-color: rgba(255, 255, 255, 0.6);
+						transform: translateY(-1px);
+						box-shadow: 0 6px 8px rgba(0, 0, 0, 0.08);
 
-                        &::before {
-                            background-color: rgba(255, 255, 255, 0.6);
-                        }
-                    }
+						&::before {
+							background-color: rgba(255, 255, 255, 0.6);
+						}
+					}
 
-                    &:active {
-                        transform: translateY(1px);
-                        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-                    }
-                }
-            }
+					&:active {
+						transform: translateY(1px);
+						box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+					}
+				}
+			}
 		}
 	}
 
