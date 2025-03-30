@@ -14,6 +14,20 @@
 	const messageObject = $state<Record<string, { source: number; message: string }>>({})
 	const messages = $derived(Object.values(messageObject))
 
+	let messagesContainer: HTMLDivElement
+
+	// Add ResizeObserver to handle container size changes
+	$effect(() => {
+		if (messages.length > 0) {
+			setTimeout(() => {
+				messagesContainer?.scrollTo({
+					top: messagesContainer.scrollHeight,
+					behavior: "smooth",
+				})
+			}, 100)
+		}
+	})
+
 	$inspect(messageObject)
 	$inspect(messages)
 
@@ -177,7 +191,7 @@
 <section class="chatbot">
 	<div class="chat-container">
 		<p class="catchline">Commence à parler, je suis là pour toi</p>
-		<div class="messages-container">
+		<div class="messages-container" bind:this={messagesContainer}>
 			<ul class="messages">
 				{#each messages as { source, message }}
 					{#if message}
