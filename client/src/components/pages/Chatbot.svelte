@@ -1,47 +1,51 @@
 <script lang="ts">
-	import { PUBLIC_API_URL } from "$env/static/public"
-	import { startWebRTCSession } from "./startWebRTCSession"
+	import { PUBLIC_API_URL } from "$env/static/public";
+	import { startWebRTCSession } from "./startWebRTCSession";
 
-	let showKeyboard = $state(false)
-	let isRecording = $state(false)
-	let connection: RTCPeerConnection | null = null
-	let channel: RTCDataChannel | null = null
-	let audioElement: HTMLAudioElement
+	let showKeyboard = $state(false);
+	let isRecording = $state(false);
+	let connection: RTCPeerConnection | null = null;
+	let channel: RTCDataChannel | null = null;
+	let audioElement: HTMLAudioElement;
 
-	const messageObject = $state<Record<string, { source: number; message: string }>>({})
-	const messages = $derived(Object.values(messageObject))
+	const messageObject = $state<
+		Record<string, { source: number; message: string }>
+	>({});
+	const messages = $derived(Object.values(messageObject));
 
-	$inspect(messageObject)
-	$inspect(messages)
+	$inspect(messageObject);
+	$inspect(messages);
 
 	async function startRecording() {
 		try {
-			const sessionResponse = await startWebRTCSession()
-			const EPHEMERAL_KEY = sessionResponse.client_secret.value as string
+			const sessionResponse = await startWebRTCSession();
+			const EPHEMERAL_KEY = sessionResponse.client_secret.value as string;
 
 			// Create a peer connection
-			connection = new RTCPeerConnection()
+			connection = new RTCPeerConnection();
 
 			// Set up to play remote audio from the model
-			connection.ontrack = e => {
-				audioElement.srcObject = e.streams[0]
-				audioElement.play()
-			}
+			connection.ontrack = (e) => {
+				audioElement.srcObject = e.streams[0];
+				audioElement.play();
+			};
 
 			// Add local audio track for microphone input
-			const ms = await navigator.mediaDevices.getUserMedia({ audio: true })
-			connection.addTrack(ms.getTracks()[0])
+			const ms = await navigator.mediaDevices.getUserMedia({
+				audio: true,
+			});
+			connection.addTrack(ms.getTracks()[0]);
 
 			// Set up data channel for sending and receiving events
-			channel = connection.createDataChannel("oai-events")
-			channel.addEventListener("message", event => {
-				const response = JSON.parse(event.data)
+			channel = connection.createDataChannel("oai-events");
+			channel.addEventListener("message", (event) => {
+				const response = JSON.parse(event.data);
 				if (response.error) {
-					console.error("Server error:", response.error)
-					return
+					console.error("Server error:", response.error);
+					return;
 				}
 
-				console.log("Response:", response.type, response)
+				console.log("Response:", response.type, response);
 
 				switch (response.type) {
 					// case "conversation.item.input_audio_transcription.delta": {
@@ -52,24 +56,30 @@
 					// case "input_audio_buffer.speech_started": {
 					case "conversation.item.input_audio_transcription.delta": {
 						if (!messageObject[response.item_id]) {
-							console.warn("User starts talking!", response.item_id)
+							console.warn(
+								"User starts talking!",
+								response.item_id,
+							);
 							messageObject[response.item_id] = {
 								source: 0,
 								message: "",
-							}
+							};
 						}
-						break
+						break;
 					}
 
 					case "conversation.item.input_audio_transcription.completed": {
-						const transcript = response.transcript as string
-						console.warn("User talks at item", response.item_id)
-						messageObject[response.item_id].message = transcript
+						const transcript = response.transcript as string;
+						console.warn("User talks at item", response.item_id);
+						messageObject[response.item_id].message = transcript;
 						fetch(`${PUBLIC_API_URL}/conversation`, {
 							method: "POST",
-							body: JSON.stringify({ sentence: transcript, speakerId: 2 }),
-						})
-						break
+							body: JSON.stringify({
+								sentence: transcript,
+								speakerId: 2,
+							}),
+						});
+						break;
 					}
 					// case "response.created": {
 					// 	messageObject[response.item_id] = {
@@ -80,42 +90,48 @@
 					// 	break
 					// }
 					case "response.audio_transcript.delta": {
-						const { delta, item_id } = response
+						const { delta, item_id } = response;
 						setTimeout(() => {
 							if (!messageObject[item_id]) {
 								messageObject[item_id] = {
 									source: 1,
 									message: "",
-								}
+								};
 								// TODO: stream text
-								console.warn("Response starts!", response.item_id)
+								console.warn(
+									"Response starts!",
+									response.item_id,
+								);
 							}
-						}, 1_000)
-						break
+						}, 1_000);
+						break;
 					}
 					case "response.audio_transcript.done": {
-						console.warn("AI has talked")
-						const transcript = response.transcript as string
+						console.warn("AI has talked");
+						const transcript = response.transcript as string;
 						messageObject[response.item_id] ??= {
 							source: 1,
 							message: "",
-						}
-						messageObject[response.item_id].message = transcript
+						};
+						messageObject[response.item_id].message = transcript;
 						fetch(`${PUBLIC_API_URL}/conversation`, {
 							method: "POST",
-							body: JSON.stringify({ sentence: transcript, speakerId: 1 }),
-						})
-						break
+							body: JSON.stringify({
+								sentence: transcript,
+								speakerId: 1,
+							}),
+						});
+						break;
 					}
 				}
-			})
+			});
 
 			// Start the session using SDP
-			const offer = await connection.createOffer()
-			await connection.setLocalDescription(offer)
+			const offer = await connection.createOffer();
+			await connection.setLocalDescription(offer);
 
-			const baseUrl = "https://api.openai.com/v1/realtime"
-			const model = "gpt-4o-mini-realtime-preview"
+			const baseUrl = "https://api.openai.com/v1/realtime";
+			const model = "gpt-4o-mini-realtime-preview";
 			const sdpResponse = await fetch(`${baseUrl}?model=${model}`, {
 				method: "POST",
 				body: offer.sdp,
@@ -123,35 +139,35 @@
 					Authorization: `Bearer ${EPHEMERAL_KEY}`,
 					"Content-Type": "application/sdp",
 				},
-			})
+			});
 
-			const sdp = await sdpResponse.text()
+			const sdp = await sdpResponse.text();
 
-			console.log("SDP:", sdp)
+			console.log("SDP:", sdp);
 
 			const answer = {
 				type: "answer",
 				sdp,
-			} as RTCSessionDescriptionInit
+			} as RTCSessionDescriptionInit;
 
-			await connection.setRemoteDescription(answer)
+			await connection.setRemoteDescription(answer);
 
-			isRecording = true
+			isRecording = true;
 		} catch (error) {
-			console.error("Error starting WebRTC session:", error)
+			console.error("Error starting WebRTC session:", error);
 		}
 	}
 
 	function stopRecording() {
 		if (connection) {
-			connection.close()
-			connection = null
+			connection.close();
+			connection = null;
 		}
 		if (channel) {
-			channel.close()
-			channel = null
+			channel.close();
+			channel = null;
 		}
-		isRecording = false
+		isRecording = false;
 	}
 </script>
 
@@ -162,7 +178,11 @@
 			<ul class="messages">
 				{#each messages as { source, message }}
 					{#if message}
-						<li class="message {source === 0 ? 'user-message' : 'bot-message'}">
+						<li
+							class="message {source === 0
+								? 'user-message'
+								: 'bot-message'}"
+						>
 							<p class="content">{message}</p>
 						</li>
 					{/if}
@@ -228,7 +248,7 @@
 
 			.catchline {
 				font-size: 40px;
-				font-weight: 800;
+				font-weight: 400;
 				text-align: center;
 				line-height: 1.2;
 				padding-top: 20px;
