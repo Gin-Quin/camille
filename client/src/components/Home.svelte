@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { swipe } from "svelte-gestures"
+	import { fly } from "svelte/transition"
 	import Analysis from "./pages/Analysis.svelte"
 	import Chatbot from "./pages/Chatbot.svelte"
 	import Info from "./pages/Info.svelte"
@@ -28,13 +29,22 @@
 <section class="home">
 	<!-- Main content -->
 	<div class="home-content" use:swipe={() => ({})} onswipe={handleSwipe}>
-		{#if page === 1}
-			<Info />
-		{:else if page === 2}
-			<Chatbot />
-		{:else if page === 3}
-			<Analysis />
-		{/if}
+		<div class="background"></div>
+		<div class="glass">
+			{#if page === 1}
+				<div class="page">
+					<Info />
+				</div>
+			{:else if page === 2}
+				<div class="page">
+					<Chatbot />
+				</div>
+			{:else if page === 3}
+				<div class="page">
+					<Analysis />
+				</div>
+			{/if}
+		</div>
 	</div>
 </section>
 
@@ -49,11 +59,31 @@
 		overflow: hidden;
 	}
 
-	.home-content {
+	.background {
+		position: absolute;
+		inset: 0 -20%;
 		background-image: url("../assets/img/background-colors.png");
-		background-size: 300%;
 		background-position: center;
+		background-size: 300%;
+	}
+
+	.home-content {
 		box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.4);
+		height: 100%;
+		width: 100%;
+		position: relative;
+	}
+
+	.glass {
+		width: 100%;
+		height: 100%;
+		background: rgba(255, 255, 255, 0.45);
+		-webkit-backdrop-filter: blur(8px);
+		backdrop-filter: blur(8px);
+	}
+
+	.page {
+		width: 100%;
 		height: 100%;
 	}
 
