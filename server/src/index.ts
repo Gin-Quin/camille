@@ -5,6 +5,7 @@ import api_analysis from "./apis/analysis";
 import api_conv from "./apis/conversation";
 import api_profile from "./apis/profile";
 import { startWebRTCSession } from "./startWebRTCSession";
+import api_mood from "./apis/mood";
 
 const app = new Hono();
 
@@ -19,6 +20,7 @@ app.use("*", cors());
 app.route("/api-profile", api_profile);
 app.route("/api-analysis", api_analysis);
 app.route("/api-conversation", api_conv);
+app.route("/api-mood", api_mood);
 
 // 1. Alloy
 // 2. Ballad (comique)
