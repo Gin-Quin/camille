@@ -8,7 +8,7 @@ const prisma = new PrismaClient();
 export const getAllConversations = async () => {
   try {
     const conversations = await prisma.conversation.findMany({
-      take: 20, // Limite le nombre de résultats à 20
+      take: 100, // Limite le nombre de résultats à 100
       orderBy: {
         id: 'desc', // Trie par ordre décroissant de la date de création
       },
