@@ -1,5 +1,7 @@
 <script lang="ts">
 	import { PUBLIC_API_URL } from "$env/static/public"
+	import type { Analysis } from "@camille/server/models/conversation-model"
+	import SuicidalPopup from "../SuicidalPopup.svelte"
 	import { startWebRTCSession } from "./startWebRTCSession"
 
 	let showKeyboard = $state(false)
@@ -7,6 +9,7 @@
 	let connection: RTCPeerConnection | null = null
 	let channel: RTCDataChannel | null = null
 	let audioElement: HTMLAudioElement
+	let showSuicidalPopup = $state(false)
 
 	const messageObject = $state<Record<string, { source: number; message: string }>>({})
 	const messages = $derived(Object.values(messageObject))
@@ -16,7 +19,11 @@
 
 	async function startRecording() {
 		try {
-			const sessionResponse = await startWebRTCSession()
+			const prompt = localStorage.getItem("prompt")
+			console.log("Prompt:", prompt)
+			const sessionResponse = await startWebRTCSession(
+				prompt ? { instructions: prompt } : {},
+			)
 			const EPHEMERAL_KEY = sessionResponse.client_secret.value as string
 
 			// Create a peer connection
@@ -34,14 +41,12 @@
 
 			// Set up data channel for sending and receiving events
 			channel = connection.createDataChannel("oai-events")
-			channel.addEventListener("message", event => {
+			channel.addEventListener("message", async event => {
 				const response = JSON.parse(event.data)
 				if (response.error) {
 					console.error("Server error:", response.error)
 					return
 				}
-
-				console.log("Response:", response.type, response)
 
 				switch (response.type) {
 					// case "conversation.item.input_audio_transcription.delta": {
@@ -65,10 +70,18 @@
 						const transcript = response.transcript as string
 						console.warn("User talks at item", response.item_id)
 						messageObject[response.item_id].message = transcript
-						fetch(`${PUBLIC_API_URL}/conversation`, {
+						const analysisResponse = await fetch(`${PUBLIC_API_URL}/conversation`, {
 							method: "POST",
+							headers: {
+								"Content-Type": "application/json",
+							},
 							body: JSON.stringify({ sentence: transcript, speakerId: 2 }),
 						})
+						const { analysis } = (await analysisResponse.json()) as { analysis: Analysis }
+						if (analysis.thinkingAboutSuicide) {
+							showSuicidalPopup = true
+						}
+						console.log("Analysis:", analysis)
 						break
 					}
 					// case "response.created": {
@@ -103,6 +116,9 @@
 						messageObject[response.item_id].message = transcript
 						fetch(`${PUBLIC_API_URL}/conversation`, {
 							method: "POST",
+							headers: {
+								"Content-Type": "application/json",
+							},
 							body: JSON.stringify({ sentence: transcript, speakerId: 1 }),
 						})
 						break
@@ -154,6 +170,9 @@
 		isRecording = false
 	}
 </script>
+
+<!-- <SuicidalPopup open /> -->
+<SuicidalPopup open={showSuicidalPopup} />
 
 <section class="chatbot">
 	<div class="chat-container">

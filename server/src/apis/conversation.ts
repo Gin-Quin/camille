@@ -11,7 +11,7 @@ type Bindings = {
 };
 
 const api_conv = new Hono<{ Bindings: Bindings }>();
-api_conv.use("/conversations/*", cors());
+api_conv.use("/conversation/*", cors());
 
 api_conv.get("/conversation", async (c) => {
 	const conversation = await getAllConversations();
@@ -19,6 +19,7 @@ api_conv.get("/conversation", async (c) => {
 });
 
 api_conv.post("/conversation", async (c) => {
+	console.log("Conversation!!!!");
 	const { sentence, speakerId } = await c.req.json();
 
 	if (!sentence || !speakerId) {

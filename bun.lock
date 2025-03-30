@@ -3,13 +3,8 @@
   "workspaces": {
     "": {
       "name": "@camille/workspace",
-      "dependencies": {
-        "gsap": "^3.12.7",
-      },
       "devDependencies": {
-        "@prisma/client": "^6.5.0",
         "prettier": "^3.5.3",
-        "prisma": "^6.5.0",
       },
     },
     "client": {
@@ -17,7 +12,9 @@
       "version": "0.0.1",
       "dependencies": {
         "@camille/server": "workspace:*",
+        "gsap": "^3.12.7",
         "melt": "^0.23.1",
+        "svelte-french-toast": "^1.2.0",
         "svelte-gestures": "^5.1.3",
       },
       "devDependencies": {
@@ -36,11 +33,13 @@
     "server": {
       "name": "@camille/server",
       "dependencies": {
+        "@prisma/client": "^6.5.0",
         "hono": "^4.7.5",
         "openai": "^4.90.0",
       },
       "devDependencies": {
         "@types/bun": "latest",
+        "prisma": "^6.5.0",
       },
     },
   },
@@ -441,7 +440,11 @@
 
     "svelte-check": ["svelte-check@4.1.5", "", { "dependencies": { "@jridgewell/trace-mapping": "^0.3.25", "chokidar": "^4.0.1", "fdir": "^6.2.0", "picocolors": "^1.0.0", "sade": "^1.7.4" }, "peerDependencies": { "svelte": "^4.0.0 || ^5.0.0-next.0", "typescript": ">=5.0.0" }, "bin": { "svelte-check": "bin/svelte-check" } }, "sha512-Gb0T2IqBNe1tLB9EB1Qh+LOe+JB8wt2/rNBDGvkxQVvk8vNeAoG+vZgFB/3P5+zC7RWlyBlzm9dVjZFph/maIg=="],
 
+    "svelte-french-toast": ["svelte-french-toast@1.2.0", "", { "dependencies": { "svelte-writable-derived": "^3.1.0" }, "peerDependencies": { "svelte": "^3.57.0 || ^4.0.0" } }, "sha512-5PW+6RFX3xQPbR44CngYAP1Sd9oCq9P2FOox4FZffzJuZI2mHOB7q5gJBVnOiLF5y3moVGZ7u2bYt7+yPAgcEQ=="],
+
     "svelte-gestures": ["svelte-gestures@5.1.3", "", {}, "sha512-ELOlzuH9E4+S1biCCTfusRlvzFpnqRPlljEqayoBTu5STH42u0kTT45D1m3Py3E9UmIyZTgrSLw6Fus/fh75Dw=="],
+
+    "svelte-writable-derived": ["svelte-writable-derived@3.1.1", "", { "peerDependencies": { "svelte": "^3.2.1 || ^4.0.0-next.1 || ^5.0.0-next.94" } }, "sha512-w4LR6/bYZEuCs7SGr+M54oipk/UQKtiMadyOhW0PTwAtJ/Ai12QS77sLngEcfBx2q4H8ZBQucc9ktSA5sUGZWw=="],
 
     "sync-child-process": ["sync-child-process@1.0.2", "", { "dependencies": { "sync-message-port": "^1.0.0" } }, "sha512-8lD+t2KrrScJ/7KXCSyfhT3/hRq78rC0wBFqNJXv3mZyn6hW2ypM05JmlSvtqRbeq6jqA94oHbxAr2vYsJ8vDA=="],
 
