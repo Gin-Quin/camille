@@ -1,19 +1,22 @@
 <script lang="ts">
-	import { swipe } from "svelte-gestures"
-	import { fly } from "svelte/transition"
-	import Analysis from "./pages/Analysis.svelte"
-	import Chatbot from "./pages/Chatbot.svelte"
-	import Info from "./pages/Info.svelte"
+	import { swipe } from "svelte-gestures";
+	import { fly } from "svelte/transition";
+	import Analysis from "./pages/Analysis.svelte";
+	import Chatbot from "./pages/Chatbot.svelte";
+	import Info from "./pages/Info.svelte";
 
-	let page = $state(2)
+	let page = $state(2);
+	let direction = $state("none");
 
 	function handleSwipe(event: CustomEvent) {
 		if (event.detail.direction === "left" && page < 3) {
-			page++
+			direction = "left";
+			page++;
 		} else if (event.detail.direction === "right" && page > 1) {
-			page--
+			direction = "right";
+			page--;
 		}
-		console.log("Current page:", page)
+		console.log("Current page:", page);
 	}
 </script>
 
@@ -32,15 +35,48 @@
 		<div class="background"></div>
 		<div class="glass">
 			{#if page === 1}
-				<div class="page">
+				<div
+					class="page"
+					in:fly={{
+						x: direction === "right" ? -300 : 300,
+						delay: 150,
+						duration: 300,
+					}}
+					out:fly={{
+						x: direction === "right" ? 300 : -300,
+						duration: 300,
+					}}
+				>
 					<Info />
 				</div>
 			{:else if page === 2}
-				<div class="page">
+				<div
+					class="page"
+					in:fly={{
+						x: direction === "right" ? -300 : 300,
+						delay: 150,
+						duration: 300,
+					}}
+					out:fly={{
+						x: direction === "right" ? 300 : -300,
+						duration: 300,
+					}}
+				>
 					<Chatbot />
 				</div>
 			{:else if page === 3}
-				<div class="page">
+				<div
+					class="page"
+					in:fly={{
+						x: direction === "right" ? -300 : 300,
+						delay: 150,
+						duration: 300,
+					}}
+					out:fly={{
+						x: direction === "right" ? 300 : -300,
+						duration: 300,
+					}}
+				>
 					<Analysis />
 				</div>
 			{/if}
