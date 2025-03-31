@@ -1,25 +1,44 @@
 <script lang="ts">
-	import { PUBLIC_API_URL } from "$env/static/public";
-	import { startWebRTCSession } from "./startWebRTCSession";
+	import { PUBLIC_API_URL } from "$env/static/public"
+	import type { Analysis } from "@camille/server/models/conversation-model"
+	import SuicidalPopup from "../SuicidalPopup.svelte"
+	import { startWebRTCSession } from "./startWebRTCSession"
 
-	let showKeyboard = $state(false);
-	let isRecording = $state(false);
-	let connection: RTCPeerConnection | null = null;
-	let channel: RTCDataChannel | null = null;
-	let audioElement: HTMLAudioElement;
+	let showKeyboard = $state(false)
+	let isRecording = $state(false)
+	let connection: RTCPeerConnection | null = null
+	let channel: RTCDataChannel | null = null
+	let audioElement: HTMLAudioElement
+	let showSuicidalPopup = $state(false)
 
-	const messageObject = $state<
-		Record<string, { source: number; message: string }>
-	>({});
-	const messages = $derived(Object.values(messageObject));
+	const messageObject = $state<Record<string, { source: number; message: string }>>({})
+	const messages = $derived(Object.values(messageObject))
+
+	let messagesContainer: HTMLDivElement
+
+	// Add ResizeObserver to handle container size changes
+	$effect(() => {
+		if (messages.length > 0) {
+			setTimeout(() => {
+				messagesContainer?.scrollTo({
+					top: messagesContainer.scrollHeight,
+					behavior: "smooth",
+				})
+			}, 100)
+		}
+	})
 
 	$inspect(messageObject);
 	$inspect(messages);
 
 	async function startRecording() {
 		try {
-			const sessionResponse = await startWebRTCSession();
-			const EPHEMERAL_KEY = sessionResponse.client_secret.value as string;
+			const prompt = localStorage.getItem("prompt")
+			console.log("Prompt:", prompt)
+			const sessionResponse = await startWebRTCSession(
+				prompt ? { instructions: prompt } : {},
+			)
+			const EPHEMERAL_KEY = sessionResponse.client_secret.value as string
 
 			// Create a peer connection
 			connection = new RTCPeerConnection();
@@ -37,15 +56,13 @@
 			connection.addTrack(ms.getTracks()[0]);
 
 			// Set up data channel for sending and receiving events
-			channel = connection.createDataChannel("oai-events");
-			channel.addEventListener("message", (event) => {
-				const response = JSON.parse(event.data);
+			channel = connection.createDataChannel("oai-events")
+			channel.addEventListener("message", async event => {
+				const response = JSON.parse(event.data)
 				if (response.error) {
 					console.error("Server error:", response.error);
 					return;
 				}
-
-				console.log("Response:", response.type, response);
 
 				switch (response.type) {
 					// case "conversation.item.input_audio_transcription.delta": {
@@ -69,17 +86,22 @@
 					}
 
 					case "conversation.item.input_audio_transcription.completed": {
-						const transcript = response.transcript as string;
-						console.warn("User talks at item", response.item_id);
-						messageObject[response.item_id].message = transcript;
-						fetch(`${PUBLIC_API_URL}/conversation`, {
+						const transcript = response.transcript as string
+						console.warn("User talks at item", response.item_id)
+						messageObject[response.item_id].message = transcript
+						const analysisResponse = await fetch(`${PUBLIC_API_URL}/conversation`, {
 							method: "POST",
-							body: JSON.stringify({
-								sentence: transcript,
-								speakerId: 2,
-							}),
-						});
-						break;
+							headers: {
+								"Content-Type": "application/json",
+							},
+							body: JSON.stringify({ sentence: transcript, speakerId: 2 }),
+						})
+						const { analysis } = (await analysisResponse.json()) as { analysis: Analysis }
+						if (analysis.thinkingAboutSuicide) {
+							showSuicidalPopup = true
+						}
+						console.log("Analysis:", analysis)
+						break
 					}
 					// case "response.created": {
 					// 	messageObject[response.item_id] = {
@@ -116,12 +138,12 @@
 						messageObject[response.item_id].message = transcript;
 						fetch(`${PUBLIC_API_URL}/conversation`, {
 							method: "POST",
-							body: JSON.stringify({
-								sentence: transcript,
-								speakerId: 1,
-							}),
-						});
-						break;
+							headers: {
+								"Content-Type": "application/json",
+							},
+							body: JSON.stringify({ sentence: transcript, speakerId: 1 }),
+						})
+						break
 					}
 				}
 			});
@@ -171,10 +193,13 @@
 	}
 </script>
 
+<!-- <SuicidalPopup open /> -->
+<SuicidalPopup open={showSuicidalPopup} />
+
 <section class="chatbot">
 	<div class="chat-container">
 		<p class="catchline">Commence à parler, je suis là pour toi</p>
-		<div class="messages-container">
+		<div class="messages-container" bind:this={messagesContainer}>
 			<ul class="messages">
 				{#each messages as { source, message }}
 					{#if message}
