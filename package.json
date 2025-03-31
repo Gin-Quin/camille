@@ -10,7 +10,8 @@
 		"build:client": "cd client && bunx --bun vite build"
 	},
 	"devDependencies": {
-		"prettier": "^3.5.3"
+		"prettier": "^3.5.3",
+		"sass-embedded": "^1.86.0"
 	},
 	"dependencies": {}
 }
